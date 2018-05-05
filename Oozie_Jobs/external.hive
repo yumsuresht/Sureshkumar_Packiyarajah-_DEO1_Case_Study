@@ -1,0 +1,75 @@
+drop table branch_external;
+create external table branch_external(
+  branch_code int,
+  branch_name string,
+  branch_street string,
+  branch_city string,
+  branch_state string,
+  branch_zip int,
+  branch_phone string,
+  last_updated string )
+
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/branch_external";
+
+load data inpath "/user/maria_dev/Credit_Card_System/Branch" OVERWRITE
+into table branch_external;
+
+
+drop table temp_Customer_external;
+create external table temp_Customer_external (
+  CUST_SSN INT,
+  CUST_FIRST_NAME STRING,
+  CUST_MIDDLE_NAME STRING,
+  CUST_LAST_NAME STRING,
+  CUST_CC_NO STRING,
+  CUST_STREET STRING,
+  CUST_CITY STRING,
+  CUST_STATE STRING,
+  CUST_COUNTRY STRING,
+  CUST_ZIP INT,
+  CUST_PHONE STRING,
+  CUST_EMAIL STRING,
+  LAST_UPDATED STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/Customer_external";
+load data inpath "/user/maria_dev/Credit_Card_System/Customer" OVERWRITE
+into table temp_Customer_external;
+
+
+create external table external_Creditcard (
+  TRANSACTION_ID STRING,
+  CUST_CC_NO STRING,
+  TIMEID STRING,
+  CUST_SSN INT,
+  BRANCH_CODE INT,
+  TRANSACTION_TYPE STRING,
+  TRANSACTION_VALUE DOUBLE)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/Creditcard_external";
+  
+load data inpath "/user/maria_dev/Credit_Card_System/CreditCard" OVERWRITE
+into table external_Creditcard;
+
+
+
+drop table external_timeid;
+create external table external_timeid (
+  TRANSACTION_ID STRING,
+  TIMEID STRING,
+  DAY INT,
+  MONTH INT,
+  QUARTER STRING,
+  YEAR INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+location "/user/maria_dev/Credit_Card_System/timeid_external";
+
+load data inpath "/user/maria_dev/Credit_Card_System/timeid" OVERWRITE
+INTO table external_timeid;

@@ -1,0 +1,25 @@
+//Sureshkumar Packiyarajah //
+
+//Q1) Find the top 20 zip codes(hint: branch_zip) by total transaction value for each transaction type?//
+//----------------------------------------------------------------------------------------------------------//
+select branch_zip, sum(transaction_value) as Total_Transaction_Value 
+from branch b join credit_card cc on b.branch_code=cc.branch_codegroup by branch_ziporder by Total_Transaction_Value desc limit 20)
+
+
+//Q2) Find total transaction value for each transaction type by Quarter in 2018?//
+//----------------------------------------------------------------------------------------------------------//
+SELECT SUM(CC.TRANSACTION_VALUE) AS TOTAL,
+
+CC.TRANSACTION_TYPE AS TYPE,
+
+T.QUARTER AS QUARTER
+
+FROM CREDITCARD CC
+
+JOIN TIMEID T
+
+ON (CC.TIMEID=T.TIMEID)
+
+GROUP BY CC.TRANSACTION_TYPE,T.QUARTER;
+
+//----------------------------------------------------------------------------------------------------------//

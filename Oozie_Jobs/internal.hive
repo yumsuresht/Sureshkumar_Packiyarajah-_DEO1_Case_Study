@@ -1,0 +1,116 @@
+drop table branch;
+create table branch (
+  branch_code int,
+  branch_name string,
+  branch_street string,
+  branch_city string,
+  branch_state string,
+  branch_zip int,
+  branch_phone string,
+  last_updated string )
+
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/Branch";
+
+INSERT OVERWRITE TABLE branch 
+SELECT 
+  branch_code,
+  branch_name,
+  branch_street,
+  branch_city,
+  branch_state,
+  branch_zip,
+  branch_phone,
+  last_updated
+FROM branch_external;
+
+
+
+drop table Customer;
+create table Customer(
+  CUST_SSN INT,
+  CUST_FIRST_NAME STRING,
+  CUST_MIDDLE_NAME STRING,
+  CUST_LAST_NAME STRING,
+  CUST_CC_NO STRING,
+  CUST_STREET STRING,
+  CUST_CITY STRING,
+  CUST_COUNTRY STRING,
+  CUST_ZIP INT,
+  CUST_PHONE STRING,
+  CUST_EMAIL STRING,
+  LAST_UPDATED STRING)
+  PARTITIONED BY (CUST_STATE STRING )
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location '/user/maria_dev/Credit_Card_System/Customer';
+
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+INSERT INTO TABLE Customer PARTITION (CUST_STATE) 
+SELECT 
+  CUST_SSN,
+  CUST_FIRST_NAME,
+  CUST_MIDDLE_NAME,
+  CUST_LAST_NAME,
+  CUST_CC_NO,
+  CUST_STREET,
+  CUST_CITY,
+  CUST_COUNTRY,
+  CUST_ZIP,
+  CUST_PHONE,
+  CUST_EMAIL,
+  LAST_UPDATED,
+  CUST_STATE
+FROM temp_Customer_external;
+
+
+create table creditcard (
+  TRANSACTION_ID STRING,
+  CUST_CC_NO STRING,
+  TIMEID STRING,
+  CUST_SSN INT,
+  BRANCH_CODE INT,
+  TRANSACTION_TYPE STRING,
+  TRANSACTION_VALUE DOUBLE)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/CreditCard";
+
+INSERT OVERWRITE TABLE creditcard
+SELECT 
+  TRANSACTION_ID,  
+  CUST_CC_NO,
+  TIMEID,
+  CUST_SSN,
+  BRANCH_CODE,
+  TRANSACTION_TYPE,
+  TRANSACTION_VALUE
+FROM external_Creditcard;
+
+drop table timeid;
+create table timeid (
+  TRANSACTION_ID STRING,
+  TIMEID STRING,
+  DAY INT,
+  MONTH INT,
+  QUARTER STRING,
+  YEAR INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+Stored as textfile
+location "/user/maria_dev/Credit_Card_System/timeid";
+
+INSERT OVERWRITE TABLE Timeid
+SELECT
+  TRANSACTION_ID,
+  TIMEID,
+  DAY,
+  MONTH,
+  QUARTER,
+  YEAR
+FROM external_timeid;

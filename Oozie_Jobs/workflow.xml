@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="OOZIE">
+ 	<start to="branchJob"/>
+	<action name="branchJob"> 
+		<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+			<job-tracker>${jobTracker}</job-tracker> 
+			<name-node>${nameNode}</name-node> 
+
+			<configuration>
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+			</configuration>
+			
+			<arg>job</arg>
+			<arg>--exec</arg>
+			<arg>branchJob</arg>
+			<arg>--meta-connect</arg>
+			<arg>jdbc:hsqldb:hsql://127.0.0.1:16000/sqoop</arg>
+			
+
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+			
+
+			
+		</sqoop>
+			<ok to="customerJob"/> 
+			<!-- if everything is ok then go to next sqoop command -->
+		<error to="fail"/>
+		</action>
+		
+	<action name="customerJob">
+       <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+			
+			<configuration>
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+			</configuration>
+            
+			<arg>job</arg>
+			<arg>--exec</arg>
+			<arg>customerJob</arg>
+			<arg>--meta-connect</arg>
+			<arg>jdbc:hsqldb:hsql://127.0.0.1:16000/sqoop</arg>     		
+			
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+			
+			
+	   </sqoop>
+			<ok to="creditcardJob"/>
+			<!-- if everything is ok then go to creditcardJob -->
+       <error to="fail"/>
+		</action>
+		
+	<action name="creditcardJob">
+       <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+		
+			<configuration>
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+			</configuration>
+    
+			<arg>job</arg>
+			<arg>--exec</arg>
+			<arg>creditCardJob</arg>
+			<arg>--meta-connect</arg>
+			<arg>jdbc:hsqldb:hsql://127.0.0.1:16000/sqoop</arg>
+       
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+	   
+	   </sqoop>
+			<ok to="timeidJob"/>
+			<!-- if everything is ok then go to timeidJob -->
+       <error to="fail"/>
+		
+		</action>
+		
+		<action name="timeidJob">
+			<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+		
+			<configuration>
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+			</configuration>
+			
+			<arg>job</arg>
+			<arg>--exec</arg>
+			<arg>timeidJob</arg>
+			<arg>--meta-connect</arg>
+			<arg>jdbc:hsqldb:hsql://127.0.0.1:16000/sqoop</arg>
+						
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+       
+	   </sqoop>
+			<ok to="Create_External_Table"/>
+       <error to="fail"/>
+		</action>	
+
+		<action name = "Create_External_Table">
+			<hive xmlns = "uri:oozie:hive-action:0.4">
+			<job-tracker>${jobTracker}</job-tracker>
+			<name-node>${nameNode}</name-node>
+			<script>${nameNode}/user/maria_dev/oozie_Automation/external.hive</script>
+		</hive>
+		
+			<ok to = "Create_Internal_Table" />
+		<error to = "fail" />
+		</action>	
+
+		
+		<action name = "Create_Internal_Table">
+			<hive xmlns = "uri:oozie:hive-action:0.4">
+			<job-tracker>${jobTracker}</job-tracker>
+			<name-node>${nameNode}</name-node>
+			<script>${nameNode}/user/maria_dev/oozie_Automation/internal.hive</script>
+		</hive>
+		
+			<ok to = "end" />
+		<error to = "fail" />
+		</action>		
+		
+		
+	<kill name="fail">
+		<message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+	<end name="end"/>
+		
+</workflow-app>
